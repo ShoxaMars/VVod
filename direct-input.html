@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Устройства прямого ввода данных</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;500;800&family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --n:#FF35C8;
+  --n-2:rgba(255,53,200,.62);
+  --n-3:rgba(255,53,200,.30);
+  --n-4:rgba(255,53,200,.14);
+  --n-5:rgba(255,53,200,.06);
+  --bg:#08040B;
+  --bg-2:#0E0612;
+  --ink:#FFE2F6;
+  --dim:rgba(255,226,246,.58);
+  --glow:0 0 14px rgba(255,53,200,.55);
+  --display:"Unbounded",system-ui,sans-serif;
+  --body:"Manrope",system-ui,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);
+  font-size:17px;line-height:1.65;overflow-x:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(900px 600px at 78% -10%,rgba(255,53,200,.16),transparent 70%),
+    radial-gradient(700px 500px at 0% 100%,rgba(255,53,200,.10),transparent 70%);
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.30;
+  background:repeating-linear-gradient(to bottom,rgba(255,53,200,.055) 0 1px,transparent 1px 4px);
+  mix-blend-mode:screen;
+}
+img,svg{max-width:100%}
+::selection{background:var(--n);color:#0a0209}
+:focus-visible{outline:2px solid var(--n);outline-offset:3px;border-radius:2px}
+
+.wrap{width:min(1120px,92vw);margin-inline:auto;position:relative;z-index:1}
+section{padding:clamp(70px,10vw,130px) 0;position:relative;z-index:1}
+
+h1,h2,h3{font-family:var(--display);font-weight:500;line-height:1.08;margin:0}
+h2{font-size:clamp(28px,4.6vw,54px);letter-spacing:-.02em}
+h3{font-size:19px;letter-spacing:-.01em}
+p{margin:0 0 1em}
+.lede{font-size:clamp(17px,2vw,21px);color:var(--dim);max-width:62ch}
+
+/* ---------- Штрихкодовый «позвоночник» прогресса ---------- */
+.spine{
+  position:fixed;left:0;top:0;bottom:0;width:26px;z-index:50;
+  display:flex;flex-direction:column;justify-content:center;gap:3px;
+  padding:calc(14px + env(safe-area-inset-top,0px)) 6px calc(14px + env(safe-area-inset-bottom,0px));
+  pointer-events:none;
+}
+.spine i{display:block;background:var(--n);border-radius:1px;opacity:.13;transition:opacity .25s,box-shadow .25s}
+.spine i.on{opacity:1;box-shadow:0 0 9px var(--n-2)}
+@media(max-width:720px){.spine{display:none}}
+
+/* ---------- Шапка ---------- */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:55;
+  padding:calc(12px + env(safe-area-inset-top,0px)) max(18px,3vw) 12px;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  backdrop-filter:blur(9px);background:linear-gradient(to bottom,rgba(8,4,11,.92),rgba(8,4,11,0));
+  transition:transform .35s;
+}
+.nav.hide{transform:translateY(-130%)}
+.brand{font-family:var(--display);font-weight:800;font-size:13px;letter-spacing:.04em;color:var(--n);text-shadow:var(--glow)}
+.nav nav{display:flex;gap:18px}
+.nav a{color:var(--dim);text-decoration:none;font-size:13px;font-weight:600;transition:color .2s}
+.nav a:hover{color:var(--n)}
+@media(max-width:860px){.nav nav{display:none}}
+
+/* ---------- Герой ---------- */
+.hero{min-height:100svh;display:flex;align-items:center;padding-top:90px}
+.hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(30px,5vw,70px);align-items:center}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:38px}}
+.kicker{
+  font-family:var(--display);font-size:11px;font-weight:500;letter-spacing:.22em;
+  color:var(--n);text-shadow:var(--glow);margin-bottom:22px
+}
+h1{
+  font-size:clamp(34px,6.6vw,74px);font-weight:800;letter-spacing:-.035em;
+  text-shadow:0 0 26px rgba(255,53,200,.42);margin-bottom:22px;
+}
+h1 .dec{display:block}
+.hero p{max-width:50ch}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.btn{
+  font-family:var(--display);font-size:13px;font-weight:500;letter-spacing:.02em;
+  padding:13px 24px;border-radius:999px;border:1px solid var(--n);color:var(--n);
+  background:var(--n-5);text-decoration:none;cursor:pointer;
+  transition:background .25s,box-shadow .25s,color .25s,transform .12s;
+}
+.btn:hover{background:var(--n);color:#0a0209;box-shadow:0 0 28px var(--n-2)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{border-color:var(--n-3);color:var(--dim)}
+.btn.ghost:hover{border-color:var(--n);color:var(--n);background:var(--n-5);box-shadow:none}
+
+/* сканируемый штрихкод в герое */
+.scanbox{
+  position:relative;border:1px solid var(--n-3);border-radius:18px;
+  background:linear-gradient(180deg,var(--n-5),transparent);
+  padding:26px 22px 18px;overflow:hidden;
+}
+.scanbox svg{display:block;width:100%;height:170px}
+.beam{
+  position:absolute;left:0;right:0;height:2px;background:var(--n);
+  box-shadow:0 0 18px 4px var(--n-2),0 0 46px 12px rgba(255,53,200,.35);
+  animation:sweep 2.8s cubic-bezier(.5,0,.5,1) infinite;
+}
+@keyframes sweep{0%,100%{top:14%}50%{top:82%}}
+.scan-out{
+  font-family:var(--display);font-size:clamp(15px,2.4vw,20px);letter-spacing:.14em;
+  color:var(--n);text-shadow:var(--glow);margin-top:10px;min-height:1.4em
+}
+.scan-meta{font-size:12px;color:var(--dim);letter-spacing:.06em}
+.corner{position:absolute;width:20px;height:20px;border:2px solid var(--n);opacity:.8}
+.corner.tl{top:10px;left:10px;border-right:0;border-bottom:0}
+.corner.tr{top:10px;right:10px;border-left:0;border-bottom:0}
+.corner.bl{bottom:10px;left:10px;border-right:0;border-top:0}
+.corner.br{bottom:10px;right:10px;border-left:0;border-top:0}
+
+.scroll-hint{margin-top:52px;display:flex;align-items:center;gap:10px;color:var(--dim);font-size:12px;letter-spacing:.16em}
+.scroll-hint span{width:34px;height:1px;background:var(--n);animation:grow 1.9s ease-in-out infinite}
+@keyframes grow{0%,100%{transform:scaleX(.3);opacity:.4}50%{transform:scaleX(1);opacity:1}}
+
+/* ---------- Заголовки секций ---------- */
+.head{margin-bottom:clamp(30px,5vw,56px);max-width:74ch}
+.head .tag{
+  display:inline-flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.2em;
+  color:var(--n);font-family:var(--display);margin-bottom:16px
+}
+.head .tag::before{content:"";width:26px;height:1px;background:var(--n);box-shadow:var(--glow)}
+.head p{margin-top:16px}
+
+/* ---------- Сравнение ручной / прямой ---------- */
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:760px){.vs{grid-template-columns:1fr}}
+.vs-card{border:1px solid var(--n-3);border-radius:16px;padding:24px;background:var(--n-5);position:relative;overflow:hidden}
+.vs-card h3{margin-bottom:6px}
+.vs-card .sub{font-size:13px;color:var(--dim);margin-bottom:18px}
+.term{
+  font-family:var(--display);font-weight:300;font-size:15px;letter-spacing:.06em;
+  background:#000;border:1px solid var(--n-4);border-radius:9px;padding:14px 15px;
+  min-height:56px;color:var(--n);word-break:break-all
+}
+.term.err{color:#fff;border-color:var(--n);animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.caret{display:inline-block;width:8px;height:1.05em;background:var(--n);vertical-align:-2px;animation:blink .9s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.stat-line{display:flex;gap:26px;margin-top:18px;flex-wrap:wrap}
+.stat-line div{font-size:12px;color:var(--dim)}
+.stat-line b{display:block;font-family:var(--display);font-size:23px;color:var(--n);font-weight:500;text-shadow:var(--glow)}
+
+/* ---------- Сетка устройств ---------- */
+.devices{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:14px}
+.dev{
+  border:1px solid var(--n-3);border-radius:16px;padding:20px;background:var(--n-5);
+  cursor:pointer;text-align:left;color:inherit;font:inherit;position:relative;overflow:hidden;
+  transition:border-color .25s,box-shadow .25s,background .25s;
+}
+.dev:hover,.dev[aria-expanded="true"]{border-color:var(--n);box-shadow:0 0 0 1px var(--n-3),0 10px 40px -18px var(--n)}
+.dev[aria-expanded="true"]{background:rgba(255,53,200,.11)}
+.dev .ico{height:74px;margin-bottom:14px;display:flex;align-items:center}
+.dev .ico svg{width:78px;height:74px;overflow:visible}
+.dev h3{font-size:17px;margin-bottom:5px}
+.dev .en{font-size:11px;letter-spacing:.14em;color:var(--n-2);font-family:var(--display)}
+.dev .an-beam{opacity:0}
+.dev:hover .an-beam,.dev[aria-expanded="true"] .an-beam{opacity:.9;animation:icoBeam 1.3s ease-in-out infinite}
+@keyframes icoBeam{0%,100%{transform:translateY(-16px)}50%{transform:translateY(16px)}}
+.dev:hover .w1,.dev[aria-expanded="true"] .w1{animation:pulse 1.2s ease-in-out infinite}
+.dev:hover .w2,.dev[aria-expanded="true"] .w2{animation:pulse 1.2s ease-in-out .2s infinite}
+.dev:hover .w3,.dev[aria-expanded="true"] .w3{animation:pulse 1.2s ease-in-out .4s infinite}
+@keyframes pulse{0%,100%{opacity:.18}50%{opacity:1}}
+.dev .plus{position:absolute;top:16px;right:18px;color:var(--n);font-size:20px;line-height:1;transition:transform .3s}
+.dev[aria-expanded="true"] .plus{transform:rotate(45deg)}
+.panel{
+  grid-column:1/-1;border:1px solid var(--n);border-radius:16px;background:rgba(255,53,200,.07);
+  padding:0 26px;max-height:0;overflow:hidden;transition:max-height .45s ease,padding .45s ease,margin .45s ease;
+  margin:0;
+}
+.panel.open{max-height:820px;padding:26px;margin:-4px 0 6px}
+.panel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:22px}
+.panel h4{font-family:var(--display);font-size:12px;letter-spacing:.14em;color:var(--n);margin:0 0 9px;font-weight:500}
+.panel ul{margin:0;padding-left:17px;color:var(--dim);font-size:14.5px}
+.panel li{margin-bottom:5px}
+.panel .desc{font-size:15.5px;margin-bottom:20px;max-width:70ch}
+
+/* ---------- Демо-блоки ---------- */
+.demos{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+.demo{border:1px solid var(--n-3);border-radius:18px;padding:24px;background:var(--n-5);display:flex;flex-direction:column}
+.demo h3{margin-bottom:6px}
+.demo .sub{font-size:13px;color:var(--dim);margin-bottom:18px}
+.stage{
+  background:#000;border:1px solid var(--n-4);border-radius:12px;padding:16px;
+  position:relative;overflow:hidden;flex:1;display:flex;flex-direction:column;justify-content:center;min-height:196px
+}
+.read{font-family:var(--display);font-size:13px;letter-spacing:.1em;color:var(--n);margin-top:14px;min-height:3.4em}
+.read small{display:block;color:var(--dim);letter-spacing:.04em;font-family:var(--body);font-size:13px;margin-top:3px}
+.demo .btn{align-self:flex-start;margin-top:16px}
+.laser{position:absolute;left:8%;right:8%;height:2px;background:var(--n);box-shadow:0 0 16px 3px var(--n-2);opacity:0;top:10%}
+.laser.go{animation:laser 1.5s ease-in-out forwards}
+@keyframes laser{0%{opacity:1;top:10%}100%{opacity:1;top:88%}}
+
+/* OMR */
+.omr{display:grid;grid-template-columns:auto repeat(4,1fr);gap:9px;align-items:center;font-size:13px}
+.omr .q{color:var(--dim);font-family:var(--display);font-size:11px;letter-spacing:.1em}
+.bub{
+  width:100%;aspect-ratio:1/1;max-width:34px;border-radius:50%;border:1.5px solid var(--n-3);
+  background:transparent;cursor:pointer;transition:background .2s,box-shadow .2s,border-color .2s;justify-self:center
+}
+.bub:hover{border-color:var(--n)}
+.bub.f{background:var(--n);border-color:var(--n);box-shadow:0 0 12px var(--n-2)}
+
+/* Fingerprint */
+.fp{display:flex;justify-content:center;align-items:center;position:relative}
+.fp svg{width:130px;height:150px}
+.fp path{fill:none;stroke:var(--n-3);stroke-width:2.1;stroke-linecap:round}
+.fp.scan path{stroke:var(--n);filter:drop-shadow(0 0 5px var(--n-2));animation:draw 1.5s ease forwards}
+.fp path{stroke-dasharray:260;stroke-dashoffset:0}
+.fp.scan path{stroke-dashoffset:260;animation:draw 1.6s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* ---------- Применение ---------- */
+.uses{display:grid;grid-template-columns:repeat(auto-fit,minmax(172px,1fr));gap:12px}
+.use{border:1px solid var(--n-4);border-radius:14px;padding:18px;background:var(--n-5);transition:border-color .25s,transform .25s}
+.use:hover{border-color:var(--n);transform:translateY(-3px)}
+.use b{display:block;font-family:var(--display);font-size:15px;font-weight:500;margin-bottom:6px}
+.use span{font-size:13.5px;color:var(--dim)}
+
+/* ---------- Плюсы / минусы ---------- */
+.pm{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:760px){.pm{grid-template-columns:1fr}}
+.pm > div{border:1px solid var(--n-3);border-radius:16px;padding:26px;background:var(--n-5)}
+.pm ul{list-style:none;margin:16px 0 0;padding:0}
+.pm li{padding-left:26px;position:relative;margin-bottom:11px;font-size:15.5px;color:var(--dim)}
+.pm li::before{position:absolute;left:0;top:0;color:var(--n);font-family:var(--display)}
+.pm .good li::before{content:"+"}
+.pm .bad li::before{content:"−"}
+
+/* ---------- Тест ---------- */
+.quiz{border:1px solid var(--n-3);border-radius:20px;padding:clamp(22px,4vw,38px);background:var(--n-5)}
+.qbar{height:2px;background:var(--n-4);border-radius:2px;margin-bottom:26px;overflow:hidden}
+.qbar i{display:block;height:100%;background:var(--n);box-shadow:var(--glow);width:0;transition:width .4s}
+.qtext{font-family:var(--display);font-size:clamp(17px,2.4vw,23px);margin-bottom:22px;line-height:1.35}
+.opts{display:grid;gap:10px}
+.opt{
+  text-align:left;padding:15px 18px;border-radius:12px;border:1px solid var(--n-3);
+  background:transparent;color:var(--ink);font:inherit;font-size:15.5px;cursor:pointer;
+  transition:border-color .2s,background .2s,color .2s
+}
+.opt:hover:not(:disabled){border-color:var(--n);background:var(--n-5)}
+.opt.right{border-color:var(--n);background:var(--n);color:#0a0209;box-shadow:0 0 26px var(--n-2)}
+.opt.wrong{border-color:var(--n-3);color:var(--dim);text-decoration:line-through}
+.opt:disabled{cursor:default}
+.qfoot{margin-top:20px;font-size:14px;color:var(--dim);min-height:1.6em}
+.score{font-family:var(--display);font-size:clamp(26px,5vw,44px);color:var(--n);text-shadow:var(--glow)}
+
+/* ---------- Итоговые счётчики ---------- */
+.nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:34px}
+.num{border-top:1px solid var(--n-3);padding-top:14px}
+.num b{display:block;font-family:var(--display);font-size:clamp(28px,5vw,44px);font-weight:500;color:var(--n);text-shadow:var(--glow);line-height:1}
+.num span{font-size:13px;color:var(--dim)}
+
+footer{padding:60px 0 calc(48px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--n-4);text-align:center}
+footer .bc{display:flex;justify-content:center;gap:2px;height:34px;margin-bottom:22px}
+footer .bc i{display:block;background:var(--n);opacity:.55;border-radius:1px}
+footer p{font-size:13px;color:var(--dim);margin:0}
+
+/* ---------- Появление при скролле ---------- */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
+.rv.in{opacity:1;transform:none}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  .rv{opacity:1;transform:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="spine" id="spine" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <div class="brand">ПРЯМОЙ ВВОД</div>
+  <nav>
+    <a href="#what">Суть</a>
+    <a href="#dev">Устройства</a>
+    <a href="#try">Демо</a>
+    <a href="#where">Применение</a>
+    <a href="#quiz">Тест</a>
+  </nav>
+</header>
+
+<!-- ============ ГЕРОЙ ============ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="kicker">ИНФОРМАТИКА · ВВОД ДАННЫХ</div>
+      <h1><span class="dec" data-dec="Устройства">Устройства</span><span class="dec" data-dec="прямого ввода">прямого ввода</span><span class="dec" data-dec="данных">данных</span></h1>
+      <p class="lede">Машина сама считывает информацию с носителя — без клавиатуры и без человека посередине. Штрихкод, отпечаток пальца, банковская карта, бланк теста: данные попадают в компьютер за доли секунды и почти без ошибок.</p>
+      <div class="cta-row">
+        <a class="btn" href="#dev">Смотреть устройства</a>
+        <a class="btn ghost" href="#try">Попробовать вживую</a>
+      </div>
+      <div class="scroll-hint"><span></span>ЛИСТАЙТЕ ВНИЗ</div>
+    </div>
+
+    <div class="scanbox">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <svg id="heroBars" viewBox="0 0 300 120" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="beam"></div>
+      <div class="scan-out" id="scanOut">4 607 001 234 567</div>
+      <div class="scan-meta">EAN-13 · считано за 0,08 с</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ЧТО ЭТО ============ -->
+<section id="what">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="tag">В ЧЁМ РАЗНИЦА</div>
+      <h2>Человек печатает.<br>Машина считывает.</h2>
+      <p class="lede">Прямой (автоматический) ввод — это когда данные считываются с источника специальным устройством и сразу переводятся в цифровой вид. Человек только подносит носитель к считывателю. Сравните два способа ввести один и тот же номер товара.</p>
+    </div>
+
+    <div class="vs rv">
+      <div class="vs-card">
+        <h3>Ручной ввод</h3>
+        <div class="sub">Оператор набирает 13 цифр на клавиатуре</div>
+        <div class="term" id="manualTerm"><span class="caret"></span></div>
+        <div class="stat-line">
+          <div><b id="mTime">0,0 с</b>время</div>
+          <div><b>~1 из 300</b>символов с ошибкой</div>
+        </div>
+      </div>
+      <div class="vs-card">
+        <h3>Прямой ввод</h3>
+        <div class="sub">Сканер читает штрихкод целиком</div>
+        <div class="term" id="autoTerm">&nbsp;</div>
+        <div class="stat-line">
+          <div><b>0,08 с</b>время</div>
+          <div><b>1 из 10 000 000</b>ошибок чтения</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ УСТРОЙСТВА ============ -->
+<section id="dev">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="tag">ДЕСЯТЬ СЧИТЫВАТЕЛЕЙ</div>
+      <h2>Чем именно читают данные</h2>
+      <p class="lede">Нажмите на карточку — откроются принцип работы, примеры применения и ограничения.</p>
+    </div>
+    <div class="devices" id="devices"></div>
+  </div>
+</section>
+
+<!-- ============ ДЕМО ============ -->
+<section id="try">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="tag">ИНТЕРАКТИВНО</div>
+      <h2>Три считывателя,<br>которые можно потрогать</h2>
+      <p class="lede">Упрощённые модели реальных устройств: сканер штрихкода, бланк с метками и дактилоскопический датчик.</p>
+    </div>
+
+    <div class="demos rv">
+      <div class="demo">
+        <h3>Сканер штрихкода</h3>
+        <div class="sub">Луч измеряет ширину полос и пробелов</div>
+        <div class="stage">
+          <svg id="demoBars" viewBox="0 0 300 100" preserveAspectRatio="none" style="height:100px" aria-hidden="true"></svg>
+          <div class="laser" id="laser"></div>
+          <div class="read" id="barRead">Готов к считыванию<small>Наведите и нажмите кнопку</small></div>
+        </div>
+        <button class="btn" id="barBtn">Сканировать</button>
+      </div>
+
+      <div class="demo">
+        <h3>Бланк с метками (OMR)</h3>
+        <div class="sub">Датчик видит, где отражение света слабее</div>
+        <div class="stage">
+          <div class="omr" id="omr"></div>
+          <div class="read" id="omrRead">Бланк пустой<small>Закрасьте по одному кружку в строке</small></div>
+        </div>
+        <button class="btn" id="omrBtn">Считать бланк</button>
+      </div>
+
+      <div class="demo">
+        <h3>Сканер отпечатка</h3>
+        <div class="sub">Ёмкостная матрица снимает рисунок гребней</div>
+        <div class="stage">
+          <div class="fp" id="fp">
+            <svg viewBox="0 0 100 120" aria-hidden="true">
+              <path d="M50 8c-20 0-34 16-34 36v20"/>
+              <path d="M50 8c20 0 34 16 34 36v20"/>
+              <path d="M50 22c-13 0-22 11-22 24v26"/>
+              <path d="M50 22c13 0 22 11 22 24v30"/>
+              <path d="M50 36c-7 0-11 6-11 14v34"/>
+              <path d="M50 36c7 0 11 6 11 14v40"/>
+              <path d="M50 50v54"/>
+              <path d="M16 78c0 14 4 24 8 30"/>
+              <path d="M84 78c0 14-4 24-8 30"/>
+            </svg>
+          </div>
+          <div class="read" id="fpRead">Приложите палец<small>Шаблон сравнивается с базой за 0,3 с</small></div>
+        </div>
+        <button class="btn" id="fpBtn">Приложить палец</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ПРИМЕНЕНИЕ ============ -->
+<section id="where">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="tag">ГДЕ ВСТРЕЧАЕТСЯ КАЖДЫЙ ДЕНЬ</div>
+      <h2>Вы пользуетесь этим<br>десятки раз в день</h2>
+    </div>
+    <div class="uses rv" id="uses"></div>
+    <div class="nums rv" id="nums"></div>
+  </div>
+</section>
+
+<!-- ============ ПЛЮСЫ / МИНУСЫ ============ -->
+<section>
+  <div class="wrap">
+    <div class="head rv">
+      <div class="tag">ЧЕСТНАЯ ОЦЕНКА</div>
+      <h2>Сильные и слабые стороны</h2>
+    </div>
+    <div class="pm rv">
+      <div class="good">
+        <h3>Что даёт прямой ввод</h3>
+        <ul>
+          <li>Скорость: тысячи символов в секунду вместо десятков</li>
+          <li>Точность: почти нет опечаток, есть контрольные суммы</li>
+          <li>Экономия людей — кассир не набирает цены вручную</li>
+          <li>Данные сразу в базе: остатки, оплата, посещаемость обновляются мгновенно</li>
+          <li>Работает там, где человек не справится: конвейер, склад, турникет</li>
+        </ul>
+      </div>
+      <div class="bad">
+        <h3>Чем приходится платить</h3>
+        <ul>
+          <li>Оборудование и его обслуживание стоят денег</li>
+          <li>Каждое устройство читает только свой тип носителя</li>
+          <li>Грязь, царапины, мятый бланк — и чтение срывается</li>
+          <li>Биометрия и метки поднимают вопрос защиты личных данных</li>
+          <li>Ошибку распознавания (OCR) всё равно проверяет человек</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ТЕСТ ============ -->
+<section id="quiz">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="tag">ПРОВЕРКА</div>
+      <h2>Пять вопросов</h2>
+    </div>
+    <div class="quiz rv">
+      <div class="qbar"><i id="qbar"></i></div>
+      <div class="qtext" id="qtext">—</div>
+      <div class="opts" id="opts"></div>
+      <div class="qfoot" id="qfoot"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="bc" id="footBars" aria-hidden="true"></div>
+    <p>Презентация по информатике · Устройства прямого ввода данных</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- генератор штрихкода ---------- */
+function bars(svg, count, h){
+  var x=0, out="";
+  for(var i=0;i<count;i++){
+    var w = 1 + Math.round(Math.random()*4);
+    out += '<rect x="'+x+'" y="0" width="'+w+'" height="'+h+'" fill="currentColor" opacity="'+(0.55+Math.random()*0.45).toFixed(2)+'"/>';
+    x += w + 1 + Math.round(Math.random()*3);
+    if(x>295) break;
+  }
+  svg.innerHTML = out;
+  svg.style.color = "#FF35C8";
+}
+var hb=document.getElementById("heroBars"); if(hb) bars(hb,70,120);
+var db=document.getElementById("demoBars"); if(db) bars(db,60,100);
+
+var fb=document.getElementById("footBars");
+if(fb){var s="";for(var i=0;i<90;i++){s+='<i style="width:'+(1+Math.round(Math.random()*3))+'px;height:'+(40+Math.random()*60)+'%"></i>';}fb.innerHTML=s;}
+
+/* ---------- «позвоночник» прогресса ---------- */
+var spine=document.getElementById("spine");
+var TICKS=46, ticks=[];
+for(var t=0;t<TICKS;t++){
+  var el=document.createElement("i");
+  el.style.height=(2+Math.round(Math.random()*7))+"px";
+  spine.appendChild(el); ticks.push(el);
+}
+function onScroll(){
+  var max=document.documentElement.scrollHeight-window.innerHeight;
+  var p=max>0?window.scrollY/max:0;
+  var n=Math.round(p*TICKS);
+  for(var i=0;i<TICKS;i++) ticks[i].classList.toggle("on", i<n);
+}
+window.addEventListener("scroll",onScroll,{passive:true}); onScroll();
+
+/* ---------- прячем шапку при скролле вниз ---------- */
+var nav=document.getElementById("nav"), last=0;
+window.addEventListener("scroll",function(){
+  var y=window.scrollY;
+  nav.classList.toggle("hide", y>last && y>320);
+  last=y;
+},{passive:true});
+
+/* ---------- появление секций ---------- */
+var io=new IntersectionObserver(function(es){
+  es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target);} });
+},{threshold:.12});
+document.querySelectorAll(".rv").forEach(function(el){io.observe(el)});
+
+/* ---------- «расшифровка» заголовка ---------- */
+var ALPH="АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЭЮЯ0123456789#/*";
+document.querySelectorAll(".dec").forEach(function(el,idx){
+  var target=el.getAttribute("data-dec");
+  if(reduce){el.textContent=target;return;}
+  var frame=0, len=target.length;
+  el.textContent=target.replace(/\S/g,"#");
+  var timer=setInterval(function(){
+    var done=Math.floor((frame-idx*6)/2.2);
+    var out="";
+    for(var i=0;i<len;i++){
+      var ch=target[i];
+      if(ch===" "){out+=" ";continue;}
+      out += i<done ? ch : ALPH[Math.floor(Math.random()*ALPH.length)];
+    }
+    el.textContent=out; frame++;
+    if(done>=len){clearInterval(timer); el.textContent=target;}
+  },45);
+});
+
+/* ---------- ручной ввод vs сканер ---------- */
+var CODE="4607001234567";
+var manual=document.getElementById("manualTerm"), auto=document.getElementById("autoTerm"), mTime=document.getElementById("mTime");
+var vsStarted=false;
+function runVS(){
+  if(vsStarted||reduce) {manual.textContent=CODE;auto.textContent=CODE;mTime.textContent="7,4 с";return;}
+  vsStarted=true;
+  var i=0, secs=0;
+  var typed="";
+  var tick=setInterval(function(){secs+=0.28;mTime.textContent=secs.toFixed(1).replace(".",",")+" с";},280);
+  var typer=setInterval(function(){
+    if(i===8){ // опечатка
+      typed+="9"; manual.innerHTML=typed+'<span class="caret"></span>'; manual.classList.add("err");
+      setTimeout(function(){typed=typed.slice(0,-1);manual.classList.remove("err");manual.innerHTML=typed+'<span class="caret"></span>';},520);
+      i++; return;
+    }
+    typed+=CODE[i>8?i-1:i];
+    manual.innerHTML=typed+'<span class="caret"></span>';
+    i++;
+    if(typed.length>=CODE.length){
+      clearInterval(typer);clearInterval(tick);
+      manual.textContent=CODE; mTime.textContent="7,4 с";
+      setTimeout(function(){auto.textContent=CODE;},400);
+    }
+  },560);
+}
+var vsIO=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){runVS();vsIO.disconnect();}})},{threshold:.4});
+vsIO.observe(document.querySelector(".vs"));
+
+/* ---------- каталог устройств ---------- */
+var ICONS={
+  barcode:'<g stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M8 12v40"/><path d="M16 12v40"/><path d="M22 12v40" opacity=".6"/><path d="M30 12v40"/><path d="M38 12v40" opacity=".6"/><path d="M44 12v40"/><path d="M52 12v40"/><path d="M60 12v40" opacity=".6"/></g><path d="M4 62h64" stroke="currentColor" stroke-width="2" opacity=".35"/><rect class="an-beam" x="2" y="30" width="68" height="3" fill="currentColor" opacity=".9"/>',
+  qr:'<g fill="currentColor"><rect x="6" y="6" width="18" height="18" opacity=".25"/><rect x="11" y="11" width="8" height="8"/><rect x="46" y="6" width="18" height="18" opacity=".25"/><rect x="51" y="11" width="8" height="8"/><rect x="6" y="46" width="18" height="18" opacity=".25"/><rect x="11" y="51" width="8" height="8"/><rect x="32" y="8" width="7" height="7"/><rect x="32" y="22" width="7" height="7"/><rect x="46" y="32" width="7" height="7"/><rect x="60" y="32" width="6" height="7"/><rect x="32" y="46" width="7" height="7"/><rect x="46" y="53" width="7" height="7"/><rect x="60" y="46" width="6" height="7"/><rect x="18" y="32" width="7" height="7"/><rect x="6" y="32" width="7" height="7"/></g>',
+  rfid:'<g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="20" cy="46" r="5" fill="currentColor" stroke="none"/><path class="w1" d="M30 40a14 14 0 0 1 0 12" opacity=".9"/><path class="w2" d="M40 32a26 26 0 0 1 0 28" opacity=".7"/><path class="w3" d="M50 24a38 38 0 0 1 0 44" opacity=".45"/></g>',
+  magstripe:'<g><rect x="4" y="16" width="64" height="42" rx="5" fill="none" stroke="currentColor" stroke-width="3"/><rect x="4" y="26" width="64" height="11" fill="currentColor" opacity=".8"/><rect x="12" y="45" width="24" height="4" rx="2" fill="currentColor" opacity=".5"/></g>',
+  chip:'<g><rect x="4" y="14" width="64" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="3"/><rect x="14" y="26" width="22" height="18" rx="3" fill="currentColor" opacity=".85"/><g stroke="#08040B" stroke-width="2"><path d="M14 33h22"/><path d="M25 26v18"/></g><g stroke="currentColor" stroke-width="2.4" opacity=".55"><path d="M46 28h14"/><path d="M46 35h14"/><path d="M46 42h9"/></g></g>',
+  micr:'<g fill="none" stroke="currentColor" stroke-width="3"><rect x="4" y="14" width="64" height="44" rx="4"/><path d="M4 46h64" opacity=".4"/></g><g fill="currentColor"><rect x="10" y="49" width="4" height="7"/><rect x="17" y="49" width="6" height="7"/><rect x="26" y="49" width="3" height="7"/><rect x="33" y="49" width="6" height="7"/><rect x="42" y="49" width="4" height="7"/><rect x="50" y="49" width="7" height="7"/><rect x="60" y="49" width="3" height="7"/></g><g stroke="currentColor" stroke-width="2.4" opacity=".5"><path d="M12 24h30"/><path d="M12 32h44"/></g>',
+  omr:'<g fill="none" stroke="currentColor" stroke-width="3"><rect x="10" y="6" width="52" height="60" rx="4"/></g><g><circle cx="24" cy="22" r="6" fill="currentColor"/><circle cx="42" cy="22" r="6" fill="none" stroke="currentColor" stroke-width="2.4" opacity=".5"/><circle cx="24" cy="40" r="6" fill="none" stroke="currentColor" stroke-width="2.4" opacity=".5"/><circle cx="42" cy="40" r="6" fill="currentColor"/><circle cx="24" cy="56" r="6" fill="none" stroke="currentColor" stroke-width="2.4" opacity=".5"/><circle cx="42" cy="56" r="6" fill="currentColor"/></g>',
+  ocr:'<g fill="none" stroke="currentColor" stroke-width="3"><rect x="8" y="8" width="56" height="56" rx="4"/></g><text x="36" y="48" font-family="Unbounded,sans-serif" font-size="34" font-weight="800" fill="currentColor" text-anchor="middle">A</text><g stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M8 20V8h12"/><path d="M64 20V8H52"/><path d="M8 52v12h12"/><path d="M64 52v12H52"/></g>',
+  bio:'<g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M36 10c-16 0-27 13-27 29v9"/><path d="M36 10c16 0 27 13 27 29v13"/><path d="M36 22c-10 0-17 9-17 19v17"/><path d="M36 22c10 0 17 9 17 19v21"/><path d="M36 34c-4 0-6 4-6 9v23"/><path d="M36 34c4 0 6 4 6 9v25"/></g>',
+  sensor:'<g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 46l10-14 9 20 11-32 10 26 8-12h12"/></g><circle cx="16" cy="32" r="3.5" fill="currentColor"/><circle cx="36" cy="20" r="3.5" fill="currentColor"/><circle cx="54" cy="34" r="3.5" fill="currentColor"/>'
+};
+
+var DEVICES=[
+ {id:"barcode",name:"Сканер штрихкода",en:"BARCODE SCANNER",
+  desc:"Луч лазера или светодиода скользит по чёрно-белым полосам. Тёмная полоса отражает мало света, светлая — много; фотодатчик превращает это чередование в последовательность нулей и единиц, а декодер — в число.",
+  how:["Полосы кодируют цифры шириной и порядком","Последняя цифра — контрольная, ловит ошибку чтения","Стандарты EAN-13, UPC, Code 128","Читается за сотые доли секунды, с любой стороны"],
+  use:["Касса супермаркета","Склад и логистика","Библиотечный формуляр","Маркировка деталей на производстве"]},
+ {id:"qr",name:"QR-сканер и камера",en:"2D CODE READER",
+  desc:"Двумерный код хранит данные и по горизонтали, и по вертикали, поэтому вмещает не 13 цифр, а несколько тысяч символов: ссылку, текст, реквизиты платежа.",
+  how:["Три больших квадрата задают ориентацию","Избыточность кода позволяет прочитать его даже повреждённым на 30%","Читает обычная камера смартфона","Данные распознаются под любым углом"],
+  use:["Оплата по QR","Электронный билет и посадочный талон","Меню в кафе","Честный знак и маркировка товаров"]},
+ {id:"rfid",name:"RFID и NFC-метки",en:"RADIO TAG READER",
+  desc:"Считыватель излучает радиоволну, метка питается от этого поля и отвечает своим номером. Ни касания, ни прямой видимости не нужно — метка может лежать внутри коробки.",
+  how:["Пассивная метка не требует батарейки","Дальность от 2 см (NFC) до нескольких метров","Читаются десятки меток одновременно","Номер метки уникален"],
+  use:["Бесконтактная оплата картой и телефоном","Пропуск в здание, ключ от номера","Инвентаризация склада целыми паллетами","Чипирование животных"]},
+ {id:"magstripe",name:"Считыватель магнитной полосы",en:"MAGNETIC STRIPE READER",
+  desc:"Данные записаны намагниченными частицами на тёмной полосе. При протягивании карты головка улавливает смену полярности и восстанавливает номер счёта.",
+  how:["До трёх дорожек записи","Требуется физическое движение карты через щель","Дешёвая, но легко копируемая технология","Полоса размагничивается рядом с магнитом"],
+  use:["Старые банковские карты","Ключ-карта в гостинице","Проездной билет","Дисконтные карты"]},
+ {id:"chip",name:"Смарт-карта с чипом",en:"SMART CARD",
+  desc:"В карту встроен микропроцессор с защищённой памятью. Он не просто отдаёт номер, а участвует в диалоге с терминалом и подписывает операцию криптографически.",
+  how:["Стандарт EMV для банковских карт","Данные нельзя скопировать, как магнитную полосу","Контактный вариант — вставить, бесконтактный — приложить","PIN проверяется внутри самого чипа"],
+  use:["Банковские карты","SIM-карта телефона","Электронный паспорт","Служебный пропуск"]},
+ {id:"micr",name:"MICR — магнитные чернила",en:"MAGNETIC INK READER",
+  desc:"Внизу банковского чека номер напечатан краской с частицами оксида железа особым шрифтом. Считыватель намагничивает символы и распознаёт их по форме магнитного сигнала.",
+  how:["Шрифты E-13B и CMC-7","Читается даже поверх подписи, штампа и грязи","Подделать сложнее, чем обычную печать","Точность выше, чем у оптического распознавания"],
+  use:["Обработка банковских чеков","Платёжные документы","Ценные бумаги"]},
+ {id:"omr",name:"OMR — считыватель меток",en:"OPTICAL MARK READER",
+  desc:"Устройство светит на бланк и смотрит, где отражение слабее. Закрашенный кружок поглощает свет — значит, в этой позиции стоит ответ. Содержание не распознаётся, только факт метки.",
+  how:["Позиция метки заранее известна по шаблону","Тысячи бланков в час","Нужен мягкий карандаш и аккуратная заливка","Мятый или грязный бланк даёт сбой"],
+  use:["Бланки ЕГЭ и тестирования","Опросники и анкеты","Лотерейные билеты","Бюллетени для голосования"]},
+ {id:"ocr",name:"OCR — распознавание текста",en:"OPTICAL CHARACTER RECOGNITION",
+  desc:"Сканер или камера получает картинку, а программа сравнивает форму каждого символа с образцами и выдаёт редактируемый текст. Самая «умная» и самая ошибающаяся технология в списке.",
+  how:["Сначала изображение, потом распознавание символов","Печатный текст читается почти безошибочно, рукописный — хуже","Машиночитаемая зона паспорта сделана специально под OCR","Результат почти всегда проверяет человек"],
+  use:["Оцифровка документов и книг","Паспортный контроль","Сортировка почты по индексу","Распознавание автомобильных номеров"]},
+ {id:"bio",name:"Биометрические сканеры",en:"BIOMETRIC SCANNER",
+  desc:"Носитель данных — сам человек. Устройство снимает рисунок папиллярных линий, геометрию лица, радужку или голос и превращает их в математический шаблон для сравнения.",
+  how:["Хранится не картинка, а числовой шаблон","Нельзя забыть, потерять или передать другому","Отпечаток, лицо, радужка, голос, вены ладони","Травма, грим или простуда мешают распознаванию"],
+  use:["Разблокировка телефона","Учёт рабочего времени","Контроль доступа в помещения","Границы и аэропорты"]},
+ {id:"sensor",name:"Датчики и сенсоры",en:"SENSORS",
+  desc:"Датчик измеряет физическую величину — температуру, давление, освещённость, движение — и через аналого-цифровой преобразователь отдаёт компьютеру число.",
+  how:["Работают непрерывно и без участия человека","АЦП переводит напряжение в цифровой код","Основа систем умного дома и промышленной автоматики","Точность зависит от калибровки"],
+  use:["Метеостанция","Умный дом и климат-контроль","Датчики на конвейере","Медицинские мониторы и фитнес-браслеты"]}
+];
+
+var grid=document.getElementById("devices");
+DEVICES.forEach(function(d,i){
+  var b=document.createElement("button");
+  b.className="dev"; b.type="button"; b.setAttribute("aria-expanded","false");
+  b.innerHTML='<span class="plus">+</span><div class="ico"><svg viewBox="0 0 72 72" style="color:var(--n)">'+ICONS[d.id]+'</svg></div><h3>'+d.name+'</h3><div class="en">'+d.en+'</div>';
+  b.addEventListener("click",function(){ toggle(i,b); });
+  grid.appendChild(b);
+});
+
+var openPanel=null, openIdx=-1;
+function toggle(i,btn){
+  if(openPanel){
+    var wasIdx=openIdx;
+    openPanel.classList.remove("open");
+    var p=openPanel; setTimeout(function(){ if(p.parentNode) p.parentNode.removeChild(p); },450);
+    grid.querySelectorAll(".dev").forEach(function(el){el.setAttribute("aria-expanded","false")});
+    openPanel=null; openIdx=-1;
+    if(wasIdx===i) return;
+  }
+  var d=DEVICES[i];
+  var panel=document.createElement("div");
+  panel.className="panel";
+  panel.innerHTML='<div class="desc">'+d.desc+'</div><div class="panel-grid"><div><h4>КАК РАБОТАЕТ</h4><ul>'+
+    d.how.map(function(x){return "<li>"+x+"</li>"}).join("")+
+    '</ul></div><div><h4>ГДЕ ПРИМЕНЯЕТСЯ</h4><ul>'+
+    d.use.map(function(x){return "<li>"+x+"</li>"}).join("")+'</ul></div></div>';
+  // вставляем после конца строки, в которой находится карточка
+  var cards=Array.prototype.slice.call(grid.querySelectorAll(".dev"));
+  var card=cards[i];
+  var top=card.offsetTop, next=null;
+  for(var k=i+1;k<cards.length;k++){ if(cards[k].offsetTop>top){ next=cards[k]; break; } }
+  grid.insertBefore(panel, next);
+  card.setAttribute("aria-expanded","true");
+  requestAnimationFrame(function(){ panel.classList.add("open"); });
+  openPanel=panel; openIdx=i;
+}
+
+/* ---------- демо 1: сканер ---------- */
+var barBtn=document.getElementById("barBtn"), laser=document.getElementById("laser"), barRead=document.getElementById("barRead");
+var GOODS=[
+ ["4 607 001 234 567","Молоко «Простоквашино» 3,2% · 930 мл · 89 ₽"],
+ ["4 690 228 019 471","Хлеб бородинский · 400 г · 62 ₽"],
+ ["5 901 234 123 457","Шоколад тёмный 70% · 90 г · 134 ₽"],
+ ["4 601 234 567 893","Кофе молотый · 250 г · 419 ₽"]
+];
+var gi=0;
+barBtn.addEventListener("click",function(){
+  bars(db,60,100);
+  laser.classList.remove("go"); void laser.offsetWidth; laser.classList.add("go");
+  barRead.innerHTML='Считывание…<small>Луч измеряет ширину полос</small>';
+  var item=GOODS[gi++%GOODS.length];
+  setTimeout(function(){
+    var digits=item[0], shown="";
+    var j=0;
+    var tm=setInterval(function(){
+      shown+=digits[j++];
+      barRead.innerHTML=shown+'<small>&nbsp;</small>';
+      if(j>=digits.length){
+        clearInterval(tm);
+        barRead.innerHTML=digits+'<small>'+item[1]+'</small>';
+      }
+    }, reduce?1:40);
+  }, reduce?1:1450);
+});
+
+/* ---------- демо 2: OMR ---------- */
+var omr=document.getElementById("omr"), omrRead=document.getElementById("omrRead"), omrBtn=document.getElementById("omrBtn");
+var LETTERS=["А","Б","В","Г"], answers=[null,null,null];
+var html="";
+for(var r=0;r<3;r++){
+  html+='<div class="q">№'+(r+1)+'</div>';
+  for(var c=0;c<4;c++) html+='<button class="bub" type="button" data-r="'+r+'" data-c="'+c+'" aria-label="Вопрос '+(r+1)+' вариант '+LETTERS[c]+'"></button>';
+}
+omr.innerHTML=html;
+omr.addEventListener("click",function(e){
+  var b=e.target.closest(".bub"); if(!b) return;
+  var r=+b.dataset.r, c=+b.dataset.c;
+  omr.querySelectorAll('.bub[data-r="'+r+'"]').forEach(function(x){x.classList.remove("f")});
+  b.classList.add("f"); answers[r]=c;
+  omrRead.innerHTML='Метки поставлены<small>Нажмите «Считать бланк»</small>';
+});
+omrBtn.addEventListener("click",function(){
+  var done=answers.filter(function(a){return a!==null}).length;
+  if(!done){ omrRead.innerHTML='Меток не найдено<small>Бланк уйдёт на ручную проверку</small>'; return; }
+  omrRead.innerHTML='Сканирование…<small>&nbsp;</small>';
+  setTimeout(function(){
+    var line=answers.map(function(a,i){return "№"+(i+1)+":"+(a===null?"—":LETTERS[a])}).join("  ");
+    omrRead.innerHTML=line+'<small>Считано меток: '+done+' из 3 · время 0,04 с</small>';
+  }, reduce?1:700);
+});
+
+/* ---------- демо 3: отпечаток ---------- */
+var fp=document.getElementById("fp"), fpRead=document.getElementById("fpRead"), fpBtn=document.getElementById("fpBtn");
+fpBtn.addEventListener("click",function(){
+  fp.classList.remove("scan"); void fp.offsetWidth; fp.classList.add("scan");
+  fpRead.innerHTML='Снятие рисунка…<small>Найдено 48 контрольных точек</small>';
+  setTimeout(function(){
+    fpRead.innerHTML='Совпадение 99,7% · доступ открыт<small>Шаблон найден в базе за 0,31 с</small>';
+  }, reduce?1:1700);
+});
+
+/* ---------- применение ---------- */
+var USES=[
+ ["Магазин","Касса считывает штрихкод, терминал — чип карты, весы печатают новый код"],
+ ["Банк","MICR читает чеки, банкомат — карту, вход в приложение — по лицу"],
+ ["Школа и вуз","Бланки тестов через OMR, электронный пропуск по RFID"],
+ ["Больница","Браслет пациента со штрихкодом, датчики следят за пульсом и давлением"],
+ ["Склад","Терминалы сбора данных и радиометки считают товар паллетами"],
+ ["Транспорт","Турникет по карте, посадочный талон по QR, номер машины по OCR"],
+ ["Почта","Индекс на конверте распознаётся OCR, посылка отслеживается по коду"],
+ ["Дом","Телефон открывается отпечатком, робот-пылесос ориентируется по датчикам"]
+];
+var uses=document.getElementById("uses");
+uses.innerHTML=USES.map(function(u){return '<div class="use"><b>'+u[0]+'</b><span>'+u[1]+'</span></div>'}).join("");
+
+/* ---------- счётчики ---------- */
+var NUMS=[[1974,"год первой покупки по штрихкоду",""],[6,"млрд сканирований штрихкодов в день",""],[99.9,"% точность чтения кода",""],[0.08,"секунды на одно считывание",""]];
+var nums=document.getElementById("nums");
+nums.innerHTML=NUMS.map(function(n){return '<div class="num"><b data-to="'+n[0]+'">0</b><span>'+n[1]+'</span></div>'}).join("");
+var numIO=new IntersectionObserver(function(es){es.forEach(function(e){
+  if(!e.isIntersecting) return;
+  numIO.unobserve(e.target);
+  var to=parseFloat(e.target.dataset.to), dec=(to%1!==0)?(to<1?2:1):0, cur=0, steps=44;
+  if(reduce){e.target.textContent=to.toFixed(dec).replace(".",",");return;}
+  var iv=setInterval(function(){
+    cur+=to/steps;
+    if(cur>=to){cur=to;clearInterval(iv);}
+    e.target.textContent=cur.toFixed(dec).replace(".",",");
+  },26);
+},{threshold:.6})},{threshold:.6});
+nums.querySelectorAll("b").forEach(function(b){numIO.observe(b)});
+
+/* ---------- тест ---------- */
+var QS=[
+ {q:"Какое устройство читает номер, напечатанный магнитными чернилами на банковском чеке?",
+  a:["MICR-считыватель","OMR-считыватель","RFID-антенна","Сканер штрихкода"],c:0,
+  e:"MICR читает символы шрифта E-13B по магнитному сигналу — даже поверх подписи и штампа."},
+ {q:"Что происходит с бланком теста в устройстве OMR?",
+  a:["Распознаётся почерк ученика","Определяется положение закрашенных меток","Считывается радиометка на бланке","Бланк фотографируется и отправляется эксперту"],c:1,
+  e:"OMR не читает содержание — он лишь фиксирует, в какой позиции отражение света слабее, то есть где стоит метка."},
+ {q:"Почему RFID-метку можно прочитать, не вынимая товар из коробки?",
+  a:["Метка светится в темноте","Метка передаёт данные по радиоканалу","Считыватель просвечивает коробку рентгеном","Метка печатается с обеих сторон"],c:1,
+  e:"Радиоволна не требует прямой видимости: метка получает энергию от поля считывателя и отвечает своим номером."},
+ {q:"Какая технология превращает фотографию страницы в редактируемый текст?",
+  a:["OCR","EAN-13","NFC","АЦП"],c:0,
+  e:"OCR сравнивает форму каждого символа с образцами. Печатный текст распознаётся почти без ошибок, рукописный — хуже."},
+ {q:"Главное преимущество прямого ввода перед ручным набором — это…",
+  a:["более низкая цена оборудования","возможность работать без электричества","скорость и резкое снижение числа ошибок","отсутствие необходимости в программном обеспечении"],c:2,
+  e:"Считывание занимает сотые доли секунды, а контрольная сумма ловит почти любую ошибку чтения. Оборудование при этом стоит дороже клавиатуры."}
+];
+var qi=0, right=0;
+var qtext=document.getElementById("qtext"), opts=document.getElementById("opts"), qfoot=document.getElementById("qfoot"), qbar=document.getElementById("qbar");
+function render(){
+  if(qi>=QS.length){
+    qtext.innerHTML='<span class="score">'+right+' из '+QS.length+'</span>';
+    opts.innerHTML="";
+    qfoot.innerHTML = right===QS.length ? "Идеально. Вы различаете все способы прямого ввода."
+      : right>=3 ? "Хороший результат — основное вы поняли."
+      : "Стоит вернуться к разделу «Чем именно читают данные».";
+    var again=document.createElement("button");
+    again.className="btn"; again.textContent="Пройти заново"; again.style.marginTop="18px";
+    again.onclick=function(){qi=0;right=0;render()};
+    opts.appendChild(again);
+    qbar.style.width="100%";
+    return;
+  }
+  var cur=QS[qi];
+  qbar.style.width=(qi/QS.length*100)+"%";
+  qtext.textContent=(qi+1)+". "+cur.q;
+  qfoot.textContent="";
+  opts.innerHTML="";
+  cur.a.forEach(function(text,idx){
+    var b=document.createElement("button");
+    b.className="opt"; b.type="button"; b.textContent=text;
+    b.onclick=function(){
+      opts.querySelectorAll(".opt").forEach(function(o,oi){
+        o.disabled=true;
+        o.classList.add(oi===cur.c?"right":"wrong");
+      });
+      if(idx===cur.c) right++;
+      qfoot.textContent=cur.e;
+      setTimeout(function(){qi++;render();}, reduce?300:2300);
+    };
+    opts.appendChild(b);
+  });
+}
+render();
+
+})();
+</script>
+</body>
+</html>
